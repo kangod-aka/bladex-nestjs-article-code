@@ -5,18 +5,22 @@ import { Md5 } from 'ts-md5';
 
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entity';
+import { CreateUserDto } from "../dto";
 
 @Injectable()
 export class UserService {
 
     constructor(@InjectRepository(UserEntity) protected userRepository: Repository<UserEntity>) {}
 
-    create(userEntity: UserEntity) {
+    /**
+     * 新建用户，添加ValidationPipe验证管道
+     */
+    create(createUserDto: CreateUserDto) {
         // ID使用雪花算法
-        userEntity.id = Number(DiscordSnowflake.generate() + "");
+        createUserDto.id = Number(DiscordSnowflake.generate() + "");
         // 密码使用MD5加密
-        userEntity.password = Md5.hashStr(userEntity.password);
-        return this.userRepository.save(userEntity);
+        createUserDto.password = Md5.hashStr(createUserDto.password);
+        return this.userRepository.save(createUserDto);
     }
 
     findAll() {
