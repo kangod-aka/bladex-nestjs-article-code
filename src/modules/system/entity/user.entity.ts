@@ -1,8 +1,8 @@
-import { Column, Entity } from "typeorm";
+import { Column, PrimaryGeneratedColumn, Entity } from "typeorm";
 
 @Entity("blade_user", { schema: "blade" })
 export class UserEntity {
-    @Column("bigint", { primary: true, name: "id", comment: "主键" })
+    @PrimaryGeneratedColumn({ type: "bigint", name: "id", comment: "主键" })
     id: number;
 
     @Column("varchar", {
