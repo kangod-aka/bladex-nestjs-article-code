@@ -5,7 +5,7 @@ import { Md5 } from 'ts-md5';
 
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entity';
-import { CreateUserDto, QueryUserDto } from "../dto";
+import { CreateUserDto, UpdateUserDto, QueryUserDto } from "../dto";
 
 @Injectable()
 export class UserService {
@@ -31,8 +31,11 @@ export class UserService {
         return this.userRepository.findOne({ where: { id } });
     }
 
-    async update(id: number, userEntity: UserEntity) {
-        await this.userRepository.update(id, userEntity);
+    /**
+     * 更新用户，添加ValidationPipe验证管道
+     */
+    async update(id: number, updateUserDto: UpdateUserDto) {
+        await this.userRepository.update(id, updateUserDto);
         return this.findOne(id);
     }
 

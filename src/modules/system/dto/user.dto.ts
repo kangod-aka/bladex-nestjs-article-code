@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
     IsOptional,
@@ -38,6 +39,13 @@ export class CreateUserDto extends UserEntity {
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请选择所属岗位' })
     postId: string;
+}
+
+/**
+ * 用户更新验证
+ */
+export class UpdateUserDto extends PartialType(CreateUserDto) {
+
 }
 
 /**

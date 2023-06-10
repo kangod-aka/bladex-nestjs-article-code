@@ -2,7 +2,7 @@ import { Controller, Param, Body, Query, Get, Post, Put, Delete, ValidationPipe 
 
 import { UserService } from '../service';
 import { UserEntity } from '../entity';
-import { CreateUserDto, QueryUserDto } from "../dto";
+import { CreateUserDto, UpdateUserDto, QueryUserDto } from "../dto";
 
 @Controller('user')
 export class UserController {
@@ -33,9 +33,19 @@ export class UserController {
         return this.userService.findOne(id);
     }
 
+    /**
+     * 更新用户，添加ValidationPipe验证管道
+     */
     @Put(':id')
-    update(@Param('id') id: number, @Body() userEntity: UserEntity) {
-        return this.userService.update(id, userEntity);
+    update(@Param('id') id: number,
+           @Body(new ValidationPipe({
+                   transform: true,
+                   forbidUnknownValues: true,
+                   validationError: { target: false },
+                   groups: ['update'],
+               }),
+           ) updateUserDto: UpdateUserDto) {
+        return this.userService.update(id, updateUserDto);
     }
 
     @Delete(':id')
