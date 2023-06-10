@@ -1,7 +1,8 @@
-import { Controller, Param, Body, Get, Post, Put, Delete, ValidationPipe } from '@nestjs/common';
+import { Controller, Param, Body, Query, Get, Post, Put, Delete, ValidationPipe } from '@nestjs/common';
+
 import { UserService } from '../service';
 import { UserEntity } from '../entity';
-import { CreateUserDto } from "../dto";
+import { CreateUserDto, QueryUserDto } from "../dto";
 
 @Controller('user')
 export class UserController {
@@ -40,5 +41,19 @@ export class UserController {
     @Delete(':id')
     remove(@Param('id') id: number) {
         return this.userService.remove(id);
+    }
+
+    /**
+     * 分页查询，验证分页参数
+     */
+    @Get("pageQuery")
+    async pageQuery(@Query(
+            new ValidationPipe({
+                transform: true,
+                forbidUnknownValues: true,
+                validationError: { target: false },
+            }),
+        ) queryUserDto: QueryUserDto) {
+        return await this.userService.pageQuery(queryUserDto);
     }
 }

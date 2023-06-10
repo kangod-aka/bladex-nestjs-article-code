@@ -1,7 +1,11 @@
+import { Transform } from 'class-transformer';
 import {
     IsOptional,
-    IsNotEmpty
+    IsNotEmpty,
+    IsNumber,
+    Min
 } from 'class-validator';
+import { toNumber } from 'lodash';
 
 import { UserEntity } from '../entity';
 
@@ -34,4 +38,22 @@ export class CreateUserDto extends UserEntity {
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请选择所属岗位' })
     postId: string;
+}
+
+/**
+ * 用户分页查询验证
+ */
+export class QueryUserDto {
+
+    @Transform(({ value }) => toNumber(value))
+    @Min(1, { message: '当前页必须大于1' })
+    @IsNumber()
+    @IsOptional()
+    page = 1;
+
+    @Transform(({ value }) => toNumber(value))
+    @Min(1, { message: '每页显示数据必须大于1' })
+    @IsNumber()
+    @IsOptional()
+    size = 10;
 }

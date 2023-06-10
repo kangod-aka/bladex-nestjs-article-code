@@ -5,7 +5,7 @@ import { Md5 } from 'ts-md5';
 
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entity';
-import { CreateUserDto } from "../dto";
+import { CreateUserDto, QueryUserDto } from "../dto";
 
 @Injectable()
 export class UserService {
@@ -38,5 +38,20 @@ export class UserService {
 
     remove(id: number) {
         return this.userRepository.delete(id);
+    }
+
+    /**
+     * 分页查询，验证分页参数
+     */
+    async pageQuery(dto: QueryUserDto) {
+        // 计算skip、take值
+        const skip = dto.size * (dto.page - 1);
+        const take = dto.size;
+        return await this.userRepository
+            .createQueryBuilder("bu")
+            .where("bu.isDeleted = 0")
+            .skip(skip)
+            .take(take)
+            .getMany();
     }
 }
