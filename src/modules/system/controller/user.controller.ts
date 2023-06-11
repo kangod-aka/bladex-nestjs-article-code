@@ -3,6 +3,7 @@ import { Controller, Param, Body, Query, Get, Post, Put, Delete, ValidationPipe 
 import { UserService } from '../service';
 import { CreateUserDto, UpdateUserDto, QueryUserDto } from "../dto";
 import { DeleteDto } from '@/modules/restful/dto';
+import { PaginateOptions } from '@/modules/database/types';
 
 @Controller('user')
 export class UserController {
@@ -83,5 +84,13 @@ export class UserController {
     @Delete()
     async delete(@Body() data: DeleteDto) {
         return this.userService.removeForBatch(data.ids);
+    }
+
+    /**
+     * 自定义分页查询
+     */
+    @Get("paginate")
+    async paginate(@Query() options: PaginateOptions) {
+        return this.userService.paginate(options);
     }
 }

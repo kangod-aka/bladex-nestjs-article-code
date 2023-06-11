@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { UserEntity, RoleEntity, DeptEntity, DictEntity } from '../entity';
 import { CreateUserDto, UpdateUserDto, QueryUserDto } from "../dto";
 import { QueryUserVo } from "../vo";
+import { PaginateOptions, QueryHook } from '@/modules/database/types';
+import { paginate } from '@/modules/database/helpers';
 
 @Injectable()
 export class UserService {
@@ -141,5 +143,17 @@ export class UserService {
         let userEntity = new UserEntity();
         userEntity.isDeleted = 1;
         return this.userRepository.update(ids, userEntity);
+    }
+
+    /**
+     * 获取分页数据
+     * @param options 分页选项
+     * @param callback 添加额外的查询
+     */
+    async paginate(options: PaginateOptions, callback?: QueryHook<UserEntity>) {
+        const queryBuilder = await this.userRepository.createQueryBuilder('bu');
+        // if (callback) return callback(queryBuilder);
+        // 调用分页函数
+        return paginate(queryBuilder, options);
     }
 }
