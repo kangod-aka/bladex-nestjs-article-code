@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_PIPE, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 
 import { database } from './config';
 import { DatabaseModule } from './modules/database/database.module';
 import { SystemModule } from './modules/system/system.module';
-import { AppPipe } from './modules/core/provider';
+import { AppPipe, AppIntercepter, AppFilter } from './modules/core/provider';
 
 @Module({
   imports: [DatabaseModule.forRoot(database), SystemModule],
@@ -16,7 +16,11 @@ import { AppPipe } from './modules/core/provider';
         forbidUnknownValues: true,
         validationError: { target: false },
       }),
-    }
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AppIntercepter,
+    },
   ],
 })
 export class AppModule {}
