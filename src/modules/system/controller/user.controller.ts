@@ -2,6 +2,7 @@ import { Controller, Param, Body, Query, Get, Post, Put, Delete, ValidationPipe 
 
 import { UserService } from '../service';
 import { CreateUserDto, UpdateUserDto, QueryUserDto } from "../dto";
+import { DeleteDto } from '@/modules/restful/dto';
 
 @Controller('user')
 export class UserController {
@@ -74,5 +75,13 @@ export class UserController {
     @Get("info/:id")
     info(@Param('id') id: number) {
         return this.userService.info(id);
+    }
+
+    /**
+     * 批量删除（软删除），传入ID数组
+     */
+    @Delete()
+    async delete(@Body() data: DeleteDto) {
+        return this.userService.removeForBatch(data.ids);
     }
 }

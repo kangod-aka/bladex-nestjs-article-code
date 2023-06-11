@@ -30,7 +30,7 @@ export class UserService {
     }
 
     findAll() {
-        return this.userRepository.find();
+        return this.userRepository.find({ where: { isDeleted: 0 } });
     }
 
     findOne(id: number) {
@@ -130,5 +130,16 @@ export class UserService {
             }
         });
         return deptNameStr;
+    }
+
+
+    /**
+     * 批量删除（软删除），传入ID数组
+     */
+    async removeForBatch(ids: number[]) {
+        // 软删除，只修改isDeleted的值
+        let userEntity = new UserEntity();
+        userEntity.isDeleted = 1;
+        return this.userRepository.update(ids, userEntity);
     }
 }
