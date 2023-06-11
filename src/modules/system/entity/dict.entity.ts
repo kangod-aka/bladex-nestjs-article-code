@@ -1,9 +1,9 @@
 import { Column, Entity } from "typeorm";
 
+import {BaseEntity} from "@/modules/database/base";
+
 @Entity("blade_dict", { schema: "blade" })
-export class DictEntity {
-  @Column("bigint", { primary: true, name: "id", comment: "主键" })
-  id: number;
+export class DictEntity extends BaseEntity {
 
   @Column("bigint", {
     name: "parent_id",

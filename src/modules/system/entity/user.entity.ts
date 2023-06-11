@@ -1,9 +1,9 @@
-import { Column, PrimaryGeneratedColumn, Entity } from "typeorm";
+import { Column, Entity } from "typeorm";
+
+import {BaseEntity} from "@/modules/database/base";
 
 @Entity("blade_user", { schema: "blade" })
-export class UserEntity {
-    @PrimaryGeneratedColumn({ type: "bigint", name: "id", comment: "主键" })
-    id: number;
+export class UserEntity extends BaseEntity {
 
     @Column("varchar", {
         name: "tenant_id",

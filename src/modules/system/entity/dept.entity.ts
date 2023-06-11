@@ -1,9 +1,9 @@
 import { Column, Entity } from "typeorm";
 
+import {BaseEntity} from "@/modules/database/base";
+
 @Entity("blade_dept", { schema: "blade" })
-export class DeptEntity {
-  @Column("bigint", { primary: true, name: "id", comment: "主键" })
-  id: number;
+export class DeptEntity extends BaseEntity {
 
   @Column("varchar", {
     name: "tenant_id",
