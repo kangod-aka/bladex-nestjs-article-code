@@ -21,6 +21,10 @@ import { AppPipe, AppIntercepter, AppFilter } from './modules/core/provider';
       provide: APP_INTERCEPTOR,
       useClass: AppIntercepter,
     },
+    {
+      provide: APP_FILTER,
+      useClass: AppFilter,
+    },
   ],
 })
 export class AppModule {}
