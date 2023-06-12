@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { UserEntity, RoleEntity, DeptEntity, DictEntity } from '../entity';
 import { CreateUserDto, UpdateUserDto, QueryUserDto } from "../dto";
 import { QueryUserVo } from "../vo";
+import { UserRepository } from '../repository';
 import { PaginateOptions, QueryHook } from '@/modules/database/types';
 import { paginate } from '@/modules/database/helpers';
 
@@ -17,7 +18,8 @@ export class UserService {
         @InjectRepository(UserEntity) protected userRepository: Repository<UserEntity>,
         @InjectRepository(RoleEntity) protected roleRepository: Repository<RoleEntity>,
         @InjectRepository(DeptEntity) protected deptRepository: Repository<DeptEntity>,
-        @InjectRepository(DictEntity) protected dictRepository: Repository<DictEntity>
+        @InjectRepository(DictEntity) protected dictRepository: Repository<DictEntity>,
+        protected userCustomRepository: UserRepository
     ) {}
 
     /**
@@ -151,7 +153,7 @@ export class UserService {
      * @param callback 添加额外的查询
      */
     async paginate(options: PaginateOptions, callback?: QueryHook<UserEntity>) {
-        const queryBuilder = await this.userRepository.createQueryBuilder('bu');
+        const queryBuilder = await this.userCustomRepository.buildBaseQB();
         // if (callback) return callback(queryBuilder);
         // 调用分页函数
         return paginate(queryBuilder, options);

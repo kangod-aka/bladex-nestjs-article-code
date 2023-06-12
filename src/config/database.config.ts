@@ -13,7 +13,8 @@ export const database = (): TypeOrmModuleOptions => ({
     database: 'blade',
     synchronize: false, // true：自动同步数据表
     autoLoadEntities: false, // true：可以使用TypeOrmModule.forFeature来动态的加入Entity
-    entities: [__dirname + '/../../**/*.entity.{js,ts}'],
+    // entities: [__dirname + '/../../**/*.entity.{js,ts}'],
+    entities: ["dist/**/*.entity.js"],
     // logging: ['error'], // 打印error级别的SQL
     logging: true // true：打印SQL
 });

@@ -16,29 +16,29 @@ import { UserEntity } from '../entity';
 export class CreateUserDto extends UserEntity {
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请输入登录账号' })
-    account: string;
+    declare account: string;
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请选择所属租户' })
-    tenantId: string;
+    declare tenantId: string;
 
     @IsNotEmpty({ groups: ['create'], message: '请输入密码' })
     @IsOptional({ groups: ['update'] })
-    password: string;
+    declare password: string;
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请输入用户昵称' })
-    name: string;
+    declare name: string;
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请输入用户姓名' })
-    realName: string;
+    declare realName: string;
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请选择所属角色' })
-    roleId: string;
+    declare roleId: string;
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请选择所属部门' })
-    deptId: string;
+    declare deptId: string;
 
     @IsNotEmpty({ groups: ['create', 'update'], message: '请选择所属岗位' })
-    postId: string;
+    declare postId: string;
 }
 
 /**

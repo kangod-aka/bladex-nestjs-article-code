@@ -1,24 +1,38 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es2017",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
-    "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@/*": ["src/*"]
-    }
-  }
+    "compilerOptions": {
+        "strict": true,
+        "target": "esnext",
+        "module": "CommonJS",
+        "sourceMap": true,
+        "incremental": true,
+        "skipLibCheck": true,
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "strictNullChecks": false,
+        "strictBindCallApply": false,
+        "noFallthroughCasesInSwitch": true,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "moduleResolution": "Node",
+        "pretty": true,
+        "resolveJsonModule": true,
+        "alwaysStrict": true,
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "noUnusedLocals": true,
+        "noImplicitReturns": true,
+        "allowJs": true,
+        "importsNotUsedAsValues": "remove",
+        "noEmit": false,
+        "lib": ["esnext", "DOM", "ScriptHost", "WebWorker"],
+        "baseUrl": ".",
+        "outDir": "./dist",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src", "test", "typing/**/*.d.ts", "**.js"]
 }

@@ -1,5 +1,5 @@
 import { ArgumentMetadata, Injectable, Paramtype, ValidationPipe } from '@nestjs/common';
-import * as merge from 'deepmerge';
+import merge from 'deepmerge';
 import { isObject, omit } from 'lodash';
 
 import { DTO_VALIDATION_OPTIONS } from '../constants';

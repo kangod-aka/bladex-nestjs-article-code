@@ -1,4 +1,7 @@
-import { SelectQueryBuilder, ObjectLiteral } from 'typeorm';
+import { SelectQueryBuilder, ObjectLiteral, Repository } from 'typeorm';
+
+import { BaseRepository } from './base/repository';
+import { OrderType } from './constants';
 
 /**
  * 分页原数据
@@ -51,3 +54,30 @@ export interface PaginateReturn<E extends ObjectLiteral> {
  * 为queryBuilder添加查询的回调函数接口
  */
 export type QueryHook<Entity> = (qb: SelectQueryBuilder<Entity>) => Promise<SelectQueryBuilder<Entity>>;
+
+/**
+ * 排序类型,{字段名称: 排序方法}
+ * 如果多个值则传入数组即可
+ * 排序方法不设置,默认DESC
+ */
+export type OrderQueryType =
+    | string
+    | { name: string; order: `${OrderType}` }
+| Array<{ name: string; order: `${OrderType}` } | string>;
+
+    /**
+     * 数据列表查询类型
+     */
+export interface QueryParams<E extends ObjectLiteral> {
+addQuery?: QueryHook<E>;
+orderBy?: OrderQueryType;
+withTrashed?: boolean;
+onlyTrashed?: boolean;
+}
+
+    /**
+     * Repository类型
+     */
+export type RepositoryType<E extends ObjectLiteral> =
+| Repository<E>
+| BaseRepository<E>;
