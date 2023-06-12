@@ -7,9 +7,6 @@ import { UserEntity } from '../entity';
 @CustomRepository(UserEntity)
 export class UserRepository extends BaseRepository<UserEntity> {
 
-    protected _qbName = 'user';
+    qbName = 'user';
 
-    buildBaseQB() {
-        return this.createQueryBuilder(this._qbName).where("user.isDeleted = 0");
-    }
 }

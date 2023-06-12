@@ -9,18 +9,20 @@ import { CreateUserDto, UpdateUserDto, QueryUserDto } from "../dto";
 import { QueryUserVo } from "../vo";
 import { UserRepository } from '../repository';
 import { PaginateOptions, QueryHook } from '@/modules/database/types';
-import { paginate } from '@/modules/database/helpers';
+import { BaseService } from "@/modules/database/base";
 
 @Injectable()
-export class UserService {
+export class UserService extends BaseService<UserEntity, UserRepository> {
 
     constructor(
-        @InjectRepository(UserEntity) protected userRepository: Repository<UserEntity>,
+        protected userRepository: UserRepository,
         @InjectRepository(RoleEntity) protected roleRepository: Repository<RoleEntity>,
         @InjectRepository(DeptEntity) protected deptRepository: Repository<DeptEntity>,
         @InjectRepository(DictEntity) protected dictRepository: Repository<DictEntity>,
         protected userCustomRepository: UserRepository
-    ) {}
+    ) {
+        super(userRepository);
+    }
 
     /**
      * 新建用户，添加ValidationPipe验证管道
@@ -34,11 +36,11 @@ export class UserService {
     }
 
     findAll() {
-        return this.userRepository.find({ where: { isDeleted: 0 } });
+        return super.findAll();
     }
 
     findOne(id: number) {
-        return this.userRepository.findOne({ where: { id } });
+        return super.detail(id);
     }
 
     /**
@@ -47,10 +49,6 @@ export class UserService {
     async update(id: number, updateUserDto: UpdateUserDto) {
         await this.userRepository.update(id, updateUserDto);
         return this.findOne(id);
-    }
-
-    remove(id: number) {
-        return this.userRepository.delete(id);
     }
 
     /**
@@ -136,15 +134,21 @@ export class UserService {
         return deptNameStr;
     }
 
+    /**
+     * 删除单条数据
+     */
+    remove(id: number) {
+        const ids = [id];
+        return this.removeForBatch(ids);
+    }
 
     /**
-     * 批量删除（软删除），传入ID数组
+     * 批量删除，传入ID数组
      */
     async removeForBatch(ids: number[]) {
-        // 软删除，只修改isDeleted的值
-        let userEntity = new UserEntity();
+        const userEntity = new UserEntity();
         userEntity.isDeleted = 1;
-        return this.userRepository.update(ids, userEntity);
+        return super.deleteBatch(ids, userEntity);
     }
 
     /**
@@ -153,9 +157,8 @@ export class UserService {
      * @param callback 添加额外的查询
      */
     async paginate(options: PaginateOptions, callback?: QueryHook<UserEntity>) {
-        const queryBuilder = await this.userCustomRepository.buildBaseQB();
         // if (callback) return callback(queryBuilder);
         // 调用分页函数
-        return paginate(queryBuilder, options);
+        return super.paginate(options, callback);
     }
 }

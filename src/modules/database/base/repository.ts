@@ -12,19 +12,12 @@ export abstract class BaseRepository<E extends ObjectLiteral> extends Repository
     /**
      * 构建查询时默认的模型对应的查询名称
      */
-    protected abstract _qbName: string;
+    abstract qbName: string;
 
     /**
      * 默认排序规则，可以通过每个方法的orderBy选项进行覆盖
      */
     protected orderBy?: string | { name: string; order: `${OrderType}` };
-
-    /**
-     * 返回查询器名称
-     */
-    get qbName() {
-        return this._qbName;
-    }
 
     /**
      * 构建基础查询器
