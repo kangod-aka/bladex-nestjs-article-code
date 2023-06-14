@@ -34,7 +34,7 @@ export abstract class BaseService<
      * 获取数据列表
      * @param callback 回调查询
      */
-    async findAll(callback?: QueryHook<E>): Promise<E[]> {
+    async list(callback?: QueryHook<E>): Promise<E[]> {
         const queryBuilder = await this.buildListQB(this.repository.buildBaseQB(), callback);
         return queryBuilder.getMany();
     }
@@ -83,9 +83,9 @@ export abstract class BaseService<
     }
 
     /**
-     * 批量删除数据
+     * 删除数据，传入ID数组
      */
-    async deleteBatch(ids: number[], options: E) {
+    async delete(ids: number[], options: E) {
         if (this.enableTrash) {
             // 软删除，只修改isDeleted的值
             console.log("opt="+options);

@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { DiscordSnowflake } from '@sapphire/snowflake';
 import { Md5 } from 'ts-md5';
 
-import { Repository } from 'typeorm';
-import { UserEntity, RoleEntity, DeptEntity, DictEntity } from '../entity';
+import { UserEntity } from '../entity';
 import { CreateUserDto, UpdateUserDto, QueryUserDto } from "../dto";
 import { QueryUserVo } from "../vo";
-import { UserRepository } from '../repository';
+import { UserRepository, RoleRepository, DeptRepository, DictRepository } from "../repository";
 import { PaginateOptions, QueryHook } from '@/modules/database/types';
 import { BaseService } from "@/modules/database/base";
 
@@ -16,10 +14,9 @@ export class UserService extends BaseService<UserEntity, UserRepository> {
 
     constructor(
         protected userRepository: UserRepository,
-        @InjectRepository(RoleEntity) protected roleRepository: Repository<RoleEntity>,
-        @InjectRepository(DeptEntity) protected deptRepository: Repository<DeptEntity>,
-        @InjectRepository(DictEntity) protected dictRepository: Repository<DictEntity>,
-        protected userCustomRepository: UserRepository
+        protected roleRepository: RoleRepository,
+        protected deptRepository: DeptRepository,
+        protected dictRepository: DictRepository
     ) {
         super(userRepository);
     }
@@ -35,20 +32,20 @@ export class UserService extends BaseService<UserEntity, UserRepository> {
         return this.userRepository.save(createUserDto);
     }
 
-    findAll() {
-        return super.findAll();
+    list() {
+        return super.list();
     }
 
-    findOne(id: number) {
+    detail(id: number) {
         return super.detail(id);
     }
 
     /**
      * 更新用户，添加ValidationPipe验证管道
      */
-    async update(id: number, updateUserDto: UpdateUserDto) {
-        await this.userRepository.update(id, updateUserDto);
-        return this.findOne(id);
+    async update(updateUserDto: UpdateUserDto) {
+        await this.userRepository.update(updateUserDto.id, updateUserDto);
+        return this.detail(updateUserDto.id);
     }
 
     /**
@@ -71,7 +68,7 @@ export class UserService extends BaseService<UserEntity, UserRepository> {
      */
     async info(id: number) {
         // 先根据用户ID查询用户信息
-        const userEntity = await this.findOne(id);
+        const userEntity = await this.detail(id);
         // 把用户的多个角色ID以","分隔，转为字符串数组
         const roleIdArray: string[] = userEntity.roleId.split(",");
         // 部门ID，同上
@@ -135,20 +132,12 @@ export class UserService extends BaseService<UserEntity, UserRepository> {
     }
 
     /**
-     * 删除单条数据
+     * 删除数据，传入ID数组
      */
-    remove(id: number) {
-        const ids = [id];
-        return this.removeForBatch(ids);
-    }
-
-    /**
-     * 批量删除，传入ID数组
-     */
-    async removeForBatch(ids: number[]) {
+    async delete(ids: number[]) {
         const userEntity = new UserEntity();
         userEntity.isDeleted = 1;
-        return super.deleteBatch(ids, userEntity);
+        return super.delete(ids, userEntity);
     }
 
     /**

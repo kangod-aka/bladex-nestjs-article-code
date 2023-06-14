@@ -7,7 +7,10 @@ import { SystemModule } from './modules/system/system.module';
 import { AppPipe, AppIntercepter, AppFilter } from './modules/core/provider';
 
 @Module({
-  imports: [DatabaseModule.forRoot(database), SystemModule],
+  imports: [
+      DatabaseModule.forRoot(database),
+      SystemModule.forRoot()
+  ],
   providers: [
     {
       provide: APP_PIPE,

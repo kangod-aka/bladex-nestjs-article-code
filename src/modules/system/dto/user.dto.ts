@@ -1,14 +1,11 @@
 import { PartialType } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import {
     IsOptional,
-    IsNotEmpty,
-    IsNumber,
-    Min
+    IsNotEmpty
 } from 'class-validator';
-import { toNumber } from 'lodash';
 
 import { UserEntity } from '../entity';
+import { ListQueryDto } from "@/modules/restful/dto";
 
 /**
  * 用户创建验证
@@ -51,17 +48,6 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
 /**
  * 用户分页查询验证
  */
-export class QueryUserDto {
+export class QueryUserDto extends ListQueryDto {
 
-    @Transform(({ value }) => toNumber(value))
-    @Min(1, { message: '当前页必须大于1' })
-    @IsNumber()
-    @IsOptional()
-    page = 1;
-
-    @Transform(({ value }) => toNumber(value))
-    @Min(1, { message: '每页显示数据必须大于1' })
-    @IsNumber()
-    @IsOptional()
-    size = 10;
 }

@@ -1,1 +1,4 @@
 export * from './user.repository';
+export * from './role.repository';
+export * from './dept.repository';
+export * from './dict.repository';
