@@ -1,11 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { AppModule } from './app.module';
 
-async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
-  // 允许跨域
-  app.enableCors();
-  await app.listen(3000);
-}
-bootstrap();
+import { bootApp, createApp } from '@/modules/core/helper/app';
+
+import * as configs from './config';
+
+import { SystemModule } from './modules/system/system.module';
+
+bootApp(
+    createApp({
+        configs,
+        configure: { storage: true },
+        modules: [SystemModule],
+        builder: async ({ configure, BootModule }) => {
+            return NestFactory.create<NestFastifyApplication>(BootModule, new FastifyAdapter(), {
+                cors: true,
+                logger: ['log', 'error', 'warn'],
+            });
+        },
+    }),
+);

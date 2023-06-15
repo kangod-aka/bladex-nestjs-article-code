@@ -1,20 +1,20 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { toNumber } from 'lodash';
+
+import { createDbConfig } from '@/modules/database/helpers';
 
 /**
- * 数据库配置
+ * 数据库配置函数
  */
-export const database = (): TypeOrmModuleOptions => ({
-    charset: 'utf8mb4',
-    type: 'mysql',
-    host: '127.0.0.1',
-    port: 3306,
-    username: 'root',
-    password: '123456',
-    database: 'blade',
-    synchronize: false, // true：自动同步数据表
-    autoLoadEntities: false, // true：可以使用TypeOrmModule.forFeature来动态的加入Entity
-    // entities: [__dirname + '/../../**/*.entity.{js,ts}'],
-    entities: ["dist/**/*.entity.js"],
-    // logging: ['error'], // 打印error级别的SQL
-    logging: true // true：打印SQL
-});
+export const database = createDbConfig((configure) => ({
+    connections: [
+        {
+            type: 'mysql',
+            host: configure.env('DB_HOST', '127.0.0.1'),
+            port: configure.env('DB_PORT', (v) => toNumber(v), 3306),
+            username: configure.env('DB_USER', 'root'),
+            password: configure.env('DB_PASSWORD', '123456'),
+            database: configure.env('DB_NAME', 'blade'),
+            logging: configure.env('DB_LOGGING', true),
+        },
+    ],
+}));

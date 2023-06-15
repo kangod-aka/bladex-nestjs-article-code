@@ -39,7 +39,7 @@ export function createApp(options: CreateOptions): Creator {
  */
 export async function bootApp(creator: () => Promise<CreatorData>) {
     const { app } = await creator();
-    await app.listen(3100, '0.0.0.0');
+    await app.listen(3000, '0.0.0.0');
 }
 
 /**

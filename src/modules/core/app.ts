@@ -61,7 +61,7 @@ export class App {
                 await this._app.init();
             }
         } catch (error) {
-            console.log('Create app failed!');
+            console.log('Create app failed!'+error);
             exit(0);
         }
 
