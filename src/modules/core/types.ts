@@ -3,6 +3,42 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 import { Configure } from './configure';
 
+/** ******************** 应用配置  ********************* */
+
+/**
+ * 应用配置
+ */
+export interface AppConfig {
+    /**
+     * 主机地址,默认为127.0.0.1
+     */
+    host: string;
+    /**
+     * 监听端口,默认3100
+     */
+    port: number;
+    /**
+     * 是否开启https,默认false
+     */
+    https: boolean;
+    /**
+     * 时区,默认Asia/Shanghai
+     */
+    timezone: string;
+    /**
+     * 语言,默认zh-cn
+     */
+    locale: string;
+    /**
+     * 控制台打印的url,默认自动生成
+     */
+    url?: string;
+    /**
+     * 由url+api前缀生成的基础api url
+     */
+    api?: string;
+}
+
 /** ******************** 应用创建  ********************* */
 /**
  * 应用创建函数

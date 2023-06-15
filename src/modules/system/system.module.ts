@@ -5,7 +5,6 @@ import { ModuleBuilder } from '../core/decorator';
 
 import { DatabaseModule } from '../database/database.module';
 
-import * as controllers from './controller';
 import * as entities from './entity';
 import * as repositories from './repository';
 import * as services from './service';
@@ -45,7 +44,6 @@ import { UserRepository, RoleRepository, DeptRepository, DictRepository } from "
             TypeOrmModule.forFeature(Object.values(entities)),
             DatabaseModule.forRepository(Object.values(repositories)),
         ],
-        controllers: Object.values(controllers),
         providers,
         exports: [
             ...Object.values(services),

@@ -5,6 +5,7 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { isNil, omit } from 'lodash';
 
 import { DatabaseModule } from '@/modules/database/database.module';
+import { RestfulModule } from '@/modules/restful/restful.module';
 
 import { App } from '../app';
 import { Configure } from '../configure';
@@ -13,6 +14,7 @@ import { CoreModule } from '../core.module';
 
 import { AppFilter, AppIntercepter, AppPipe } from '../provider';
 import {
+    AppConfig,
     AppParams,
     CreateOptions,
     Creator,
@@ -36,10 +38,15 @@ export function createApp(options: CreateOptions): Creator {
 /**
  * 构建APP CLI,默认start命令应用启动监听app
  * @param creator APP构建器
+ * @param listened 监听回调
  */
-export async function bootApp(creator: () => Promise<CreatorData>) {
-    const { app } = await creator();
-    await app.listen(3000, '0.0.0.0');
+export async function bootApp(
+    creator: () => Promise<CreatorData>,
+    listened?: (params: CreatorData) => () => Promise<void>,
+) {
+    const { app, configure } = await creator();
+    const { port, host } = await configure.get<AppConfig>('app');
+    await app.listen(port, host, listened({ app, configure } as any));
 }
 
 /**
@@ -55,6 +62,7 @@ export async function createBootModule(
     const { configure } = params;
     const importModules = [...modules, CoreModule];
     if (configure.has('database')) importModules.push(DatabaseModule);
+    if (configure.has('api')) importModules.push(RestfulModule);
     const moduleMaps = await createImportModules(configure, importModules);
     const imports: ModuleMetadata['imports'] = Object.values(moduleMaps).map((m) => m.module);
     const providers: ModuleMetadata['providers'] = [];
