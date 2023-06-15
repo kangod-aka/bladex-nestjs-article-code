@@ -3,9 +3,11 @@ import { Global, Module, ModuleMetadata, Type } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
 import { isNil, omit } from 'lodash';
+import chalk from 'chalk';
 
 import { DatabaseModule } from '@/modules/database/database.module';
 import { RestfulModule } from '@/modules/restful/restful.module';
+import yargs, { CommandModule } from 'yargs';
 
 import { App } from '../app';
 import { Configure } from '../configure';
@@ -16,6 +18,7 @@ import { AppFilter, AppIntercepter, AppPipe } from '../provider';
 import {
     AppConfig,
     AppParams,
+    CommandItem,
     CreateOptions,
     Creator,
     CreatorData,
@@ -119,7 +122,7 @@ async function createImportModules(
     for (const m of modules) {
         const option: ModuleOption = 'module' in m ? m : { module: m };
         const metadata: ModuleBuilderMeta = await getModuleMeta(configure, option);
-        Module(omit(metadata, ['global']))(option.module);
+        Module(omit(metadata, ['global', 'commands']))(option.module);
         if (metadata.global) Global()(option.module);
         maps[option.module.name] = { module: option.module, meta: metadata };
     }
@@ -141,4 +144,54 @@ async function getModuleMeta(configure: Configure, option: ModuleOption) {
             : register(configure, params);
     }
     return metadata;
+}
+
+/**
+ * 创建所有自定义及模块的命令
+ * @param params
+ */
+export async function createCommands(params: CreatorData): Promise<CommandModule<any, any>[]> {
+    const { app, modules } = params;
+    const moduleCommands: Array<CommandItem<any, any>> = Object.values(modules)
+        .map((m) => m.meta.commands ?? [])
+        .reduce((o, n) => [...o, ...n], []);
+    const commands = [...params.commands, ...moduleCommands].map((item) => {
+        const command = item(params);
+        return {
+            ...command,
+            handler: async (args: yargs.Arguments<any>) => {
+                const handler = command.handler as (
+                    ...argvs: yargs.Arguments<any>
+                ) => Promise<void>;
+                await handler({ ...params, ...args });
+                await app.close();
+                process.exit();
+            },
+        };
+    });
+    return commands;
+}
+
+export async function buildCli(builder: () => Promise<CreatorData>) {
+    const params = await builder();
+    const commands = await createCommands(params);
+    console.log();
+    commands.forEach((command) => yargs.command(command));
+    yargs
+        .usage('Usage: $0 <command> [options]')
+        .scriptName('cli')
+        .demandCommand(1, '')
+        .fail((msg, err, y) => {
+            if (!msg && !err) {
+                yargs.showHelp();
+                process.exit();
+            }
+            if (msg) console.error(chalk.red(msg));
+            if (err) console.error(chalk.red(err.message));
+            process.exit();
+        })
+        .strict()
+        .alias('v', 'version')
+        .help('h')
+        .alias('h', 'help').argv;
 }

@@ -1,6 +1,10 @@
 import { Module, ModuleMetadata, Type } from '@nestjs/common';
 import deepmerge from 'deepmerge';
 import { isArray, isNil, isObject } from 'lodash';
+import chalk from 'chalk';
+
+import { PanicOption } from '../types';
+
 /**
  * 用于请求验证中的boolean数据转义
  * @param value
@@ -95,4 +99,20 @@ export function CreateModule(
     }
     Module(metaSetter())(ModuleClass);
     return ModuleClass;
+}
+
+/**
+ * 输出命令行错误消息
+ * @param option
+ */
+export function panic(option: PanicOption | string) {
+    console.log();
+    if (typeof option === 'string') {
+        console.log(chalk.red(`\n❌ ${option}`));
+        process.exit(1);
+    }
+    const { error, spinner, message, exit = true } = option;
+    if (error) console.log(chalk.red(error));
+    spinner ? spinner.fail(chalk.red(`\n❌${message}`)) : console.log(chalk.red(`\n❌ ${message}`));
+    if (exit) process.exit(1);
 }

@@ -1,6 +1,9 @@
 import { ModuleMetadata, PipeTransform, Type } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
+import { Ora } from 'ora';
+import { CommandModule } from 'yargs';
+
 import { Configure } from './configure';
 
 /** ******************** 应用配置  ********************* */
@@ -93,6 +96,10 @@ export interface CreateOptions {
      * @param params
      */
     meta?: (params: AppParams) => ModuleMetadata;
+    /**
+     * 在启动模块上添加一些命令
+     */
+    commands?: CommandCollection;
 }
 
 /**
@@ -100,6 +107,7 @@ export interface CreateOptions {
  */
 export interface CreatorData extends Required<AppParams> {
     modules: ModuleBuildMap;
+    commands: CommandCollection;
 }
 
 /**
@@ -142,6 +150,7 @@ export type ModuleBuildMap = Record<string, { meta: ModuleBuilderMeta; module: T
  */
 export type ModuleBuilderMeta = ModuleMetadata & {
     global?: boolean;
+    commands?: CommandCollection;
 };
 
 /**
@@ -208,3 +217,39 @@ export interface ConfigureFactory<
 
 export type ConnectionOption<T extends Record<string, any>> = { name?: string } & T;
 export type ConnectionRst<T extends Record<string, any>> = Array<{ name: string } & T>;
+
+/** ****************************** CLI及命令  ***************************** */
+
+/**
+ * 命令集合
+ */
+export type CommandCollection = Array<CommandItem<any, any>>;
+
+/**
+ * 命令构造器
+ */
+export type CommandItem<T = Record<string, any>, U = Record<string, any>> = (
+    params: Required<AppParams>,
+) => CommandModule<T, U>;
+
+/**
+ * 控制台错误函数panic的选项参数
+ */
+export interface PanicOption {
+    /**
+     * 报错消息
+     */
+    message: string;
+    /**
+     * ora对象
+     */
+    spinner?: Ora;
+    /**
+     * 抛出的异常信息
+     */
+    error?: any;
+    /**
+     * 是否退出进程
+     */
+    exit?: boolean;
+}

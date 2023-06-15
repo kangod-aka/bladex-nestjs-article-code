@@ -1,10 +1,9 @@
-import { exit } from 'process';
-
 import { DynamicModule, ModuleMetadata, Provider, Type } from '@nestjs/common';
 import { getDataSourceToken, TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource, ObjectType } from 'typeorm';
 
 import { ModuleBuilder } from '../core/decorator';
+import { panic } from '../core/helper';
 
 import { CUSTOM_REPOSITORY_METADATA } from './constants';
 import { DataExistConstraint, UniqueExistContraint, UniqueConstraint } from './constraint';
@@ -14,8 +13,7 @@ import { DbConfig } from './types';
     const imports: ModuleMetadata['imports'] = [];
 
     if (!configure.has('database')) {
-        throw new Error('Database config not exists or not right!');
-        exit(1);
+        panic({ message: 'Database config not exists or not right!' });
     }
     const { connections } = await configure.get<DbConfig>('database');
     for (const dbOption of connections) {

@@ -1,7 +1,6 @@
 /* eslint-disable func-names */
 import { exit } from 'process';
 import { isNil } from 'lodash';
-
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { useContainer } from 'class-validator';
 
@@ -9,8 +8,8 @@ import { Configure } from './configure';
 import { createBootModule } from './helper/app';
 import { ApiConfig } from '../restful/types';
 import { Restful } from '../restful/restful';
-
 import { ConfigStorageOption, CreateOptions, CreatorData } from './types';
+import { panic } from './helper';
 /**
  * 应用核心类
  * 用于构建应用和配置实例
@@ -39,7 +38,7 @@ export class App {
      * @param options 应用创建选项
      */
     static async create(options: CreateOptions): Promise<CreatorData> {
-        const { builder, configs, configure } = options;
+        const { builder, configs, configure, commands = [] } = options;
         let modules = {};
         try {
             this._configure = await this.buildConfigure(configs, configure);
@@ -69,11 +68,11 @@ export class App {
                 await this._app.init();
             }
         } catch (error) {
-            console.log('Create app failed!'+error);
+            panic({ message: 'Create app failed!', error });
             exit(0);
         }
 
-        return { configure: this._configure, app: this._app, modules };
+        return { configure: this._configure, app: this._app, modules, commands };
     }
 
     /**
