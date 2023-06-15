@@ -44,7 +44,7 @@ export const createDbOptions = (configure: Configure, options: DbConfigOptions) 
             newOptions.common,
             {
                 ...newOption,
-                synchronize: configure.getRunEnv() !== EnvironmentType.PRODUCTION,
+                synchronize: false,
                 autoLoadEntities: true,
             } as any,
             'replace',
