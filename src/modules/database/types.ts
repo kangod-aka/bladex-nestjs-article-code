@@ -1,23 +1,38 @@
+import { Faker } from '@faker-js/faker';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Ora } from 'ora';
+import {
+    SelectQueryBuilder,
+    ObjectLiteral,
+    Repository,
+    DataSource,
+    EntityManager,
+    EntityTarget,
+    ObjectType,
+} from 'typeorm';
+import yargs from 'yargs';
 
-import { SelectQueryBuilder, ObjectLiteral, Repository } from 'typeorm';
+import { Configure } from '../core/configure';
 
 import { BaseRepository } from './base/repository';
 import { OrderType } from './constants';
+import { FactoryResolver } from './resolver/factory.resolver';
+
+/** ****************************** 数据库配置 **************************** */
 
 /**
  * 自定义数据库配置
  */
 export type DbConfigOptions = {
-    common: Record<string, any>;
-    connections: Array<TypeOrmModuleOptions>;
+    common: Record<string, any> & DbAdditionalOption;
+    connections: Array<TypeOrmModuleOptions & DbAdditionalOption>;
 };
 
 /**
  * 最终数据库配置
  */
 export type DbConfig = Record<string, any> & {
-    common: Record<string, any>;
+    common: Record<string, any> & ReRequired<DbAdditionalOption>;
     connections: TypeormOption[];
 };
 
@@ -26,7 +41,35 @@ export type DbConfig = Record<string, any> & {
  */
 export type TypeormOption = Omit<TypeOrmModuleOptions, 'name' | 'migrations'> & {
     name: string;
+} & Required<DbAdditionalOption>;
+
+/**
+ * 额外数据库选项,用于CLI工具
+ */
+type DbAdditionalOption = {
+    /**
+     * 填充类
+     */
+    seedRunner?: SeederConstructor;
+    /**
+     * 填充类列表
+     */
+    seeders?: SeederConstructor[];
+
+    /**
+     * 数据构建函数列表
+     */
+    factories?: (() => DbFactoryOption<any, any>)[];
+
+    paths?: {
+        /**
+         * 迁移文件路径
+         */
+        migration?: string;
+    };
 };
+
+/** ****************************** 数据查询及操作 **************************** */
 
 /**
  * 分页原数据
@@ -53,6 +96,7 @@ export interface PaginateMeta {
      */
     page: number;
 }
+
 /**
  * 分页选项
  */
@@ -106,3 +150,129 @@ onlyTrashed?: boolean;
 export type RepositoryType<E extends ObjectLiteral> =
 | Repository<E>
 | BaseRepository<E>;
+
+/** ****************************** 数据结构迁移 **************************** */
+
+    /**
+     * 基础数据库命令参数类型
+     */
+export type TypeOrmArguments = yargs.Arguments<{
+connection?: string;
+}>;
+
+/** ****************************** 数据填充Seeder **************************** */
+
+    /**
+     * 数据填充命令参数
+     */
+export type SeederArguments = TypeOrmArguments & SeederOptions;
+
+    /**
+     * 数据填充处理器选项
+     */
+export interface SeederOptions {
+connection?: string;
+transaction?: boolean;
+}
+
+    /**
+     * 数据填充类接口
+     */
+export interface SeederConstructor {
+new (spinner: Ora, args: SeederOptions): Seeder;
+}
+
+    /**
+     * 数据填充类方法对象
+     */
+export interface Seeder {
+load: (params: SeederLoadParams) => Promise<void>;
+}
+
+    /**
+     * 数据填充类的load函数参数
+     */
+export interface SeederLoadParams {
+    /**
+     * 数据库连接名称
+     */
+connection: string;
+    /**
+     * 数据库连接池
+     */
+dataSource: DataSource;
+
+    /**
+     * EntityManager实例
+     */
+em: EntityManager;
+
+    /**
+     * Factory解析器
+     */
+factorier?: DbFactory;
+    /**
+     * Factory函数列表
+     */
+factories: FactoryOptions;
+
+    /**
+     * 项目配置类
+     */
+configure: Configure;
+}
+
+/** ****************************** 数据填充Factory **************************** */
+    /**
+     * Factory解析器
+     */
+export interface DbFactory {
+<Entity>(entity: EntityTarget<Entity>): <Options>(
+options?: Options,
+) => FactoryResolver<Entity, Options>;
+}
+
+    /**
+     * Factory解析后的元数据
+     */
+export type DbFactoryOption<E, O> = {
+entity: ObjectType<E>;
+handler: DbFactoryHandler<E, O>;
+};
+
+    /**
+     * 数据填充函数映射对象
+     */
+export type FactoryOptions = {
+[entityName: string]: DbFactoryOption<any, any>;
+};
+
+    /**
+     * Factory处理器
+     */
+export type DbFactoryHandler<E, O> = (faker: Faker, options: O) => Promise<E>;
+
+    /**
+     * Factory自定义参数覆盖
+     */
+export type FactoryOverride<Entity> = {
+[Property in keyof Entity]?: Entity[Property];
+};
+
+    /**
+     * Factory构造器
+     */
+export type DbFactoryBuilder = (
+dataSource: DataSource,
+factories: {
+[entityName: string]: DbFactoryOption<any, any>;
+},
+) => DbFactory;
+
+    /**
+     * Factory定义器
+     */
+export type DefineFactory = <E, O>(
+entity: ObjectType<E>,
+handler: DbFactoryHandler<E, O>,
+) => () => DbFactoryOption<E, O>;

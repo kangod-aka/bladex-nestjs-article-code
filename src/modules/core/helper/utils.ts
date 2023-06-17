@@ -2,8 +2,72 @@ import { Module, ModuleMetadata, Type } from '@nestjs/common';
 import deepmerge from 'deepmerge';
 import { isArray, isNil, isObject } from 'lodash';
 import chalk from 'chalk';
+import dayjs from 'dayjs';
 
-import { PanicOption } from '../types';
+import 'dayjs/locale/en';
+import 'dayjs/locale/zh-cn';
+import 'dayjs/locale/zh-tw';
+
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import dayOfYear from 'dayjs/plugin/dayOfYear';
+import localeData from 'dayjs/plugin/localeData';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+import { App } from '@/modules/core/app';
+
+import { AppConfig, TimeOptions, PanicOption } from '../types';
+
+dayjs.extend(localeData);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(advancedFormat);
+dayjs.extend(customParseFormat);
+dayjs.extend(dayOfYear);
+
+/**
+ * 获取小于N的随机整数
+ * @param count
+ */
+export const getRandomIndex = (count: number) => Math.floor(Math.random() * count);
+
+/**
+ * 从列表中获取一个随机项
+ * @param list
+ */
+export const getRandItemData = <T extends Record<string, any>>(list: T[]) => {
+    return list[getRandomIndex(list.length)];
+};
+
+/**
+ * 从列表中获取多个随机项组成一个新列表
+ * @param list
+ */
+export const getRandListData = <T extends Record<string, any>>(list: T[]) => {
+    const result: T[] = [];
+    for (let i = 0; i < getRandomIndex(list.length); i++) {
+        const random = getRandItemData<T>(list);
+        if (!result.find((item) => item.id === random.id)) {
+            result.push(random);
+        }
+    }
+    return result;
+};
+
+/**
+ * 生成只包含字母的固定长度的字符串
+ * @param length
+ */
+export const getRandomCharString = (length: number) => {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+};
 
 /**
  * 用于请求验证中的boolean数据转义
@@ -116,3 +180,16 @@ export function panic(option: PanicOption | string) {
     spinner ? spinner.fail(chalk.red(`\n❌${message}`)) : console.log(chalk.red(`\n❌ ${message}`));
     if (exit) process.exit(1);
 }
+
+/**
+ * 获取一个dayjs时间对象
+ * @param options
+ */
+export const getTime = async (options?: TimeOptions) => {
+    const { date, format, locale, strict, zonetime } = options ?? {};
+    const config = await App.configure.get<AppConfig>('app');
+    // 每次创建一个新的时间对象
+    // 如果没有传入local或timezone则使用应用配置
+    const now = dayjs(date, format, locale ?? config.locale, strict).clone();
+    return now.tz(zonetime ?? config.timezone);
+};

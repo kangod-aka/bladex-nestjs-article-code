@@ -1,6 +1,8 @@
 import { toNumber } from 'lodash';
 
 import { createDbConfig } from '@/modules/database/helpers';
+import ContentSeeder from '@/database/seeder/system.seeder';
+import { SystemFactory } from '@/database/factory/system.factory';
 
 /**
  * 数据库配置函数
@@ -15,6 +17,8 @@ export const database = createDbConfig((configure) => ({
             password: configure.env('DB_PASSWORD', '123456'),
             database: configure.env('DB_NAME', 'blade'),
             logging: configure.env('DB_LOGGING', true),
+            seeders: [ContentSeeder],
+            factories: [SystemFactory],
         },
     ],
 }));

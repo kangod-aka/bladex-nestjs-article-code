@@ -1,6 +1,6 @@
 import { ModuleMetadata, PipeTransform, Type } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
-
+import dayjs from 'dayjs';
 import { Ora } from 'ora';
 import { CommandModule } from 'yargs';
 
@@ -252,4 +252,32 @@ export interface PanicOption {
      * 是否退出进程
      */
     exit?: boolean;
+}
+
+/** ****************************** 时间  ***************************** */
+
+/**
+ * getTime函数获取时间的选项参数
+ */
+export interface TimeOptions {
+    /**
+     * 时间
+     */
+    date?: dayjs.ConfigType;
+    /**
+     * 输出格式
+     */
+    format?: dayjs.OptionType;
+    /**
+     * 语言
+     */
+    locale?: string;
+    /**
+     * 是否严格模式
+     */
+    strict?: boolean;
+    /**
+     * 时区
+     */
+    zonetime?: string;
 }
